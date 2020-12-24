@@ -6,13 +6,13 @@
         <head>
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
             <script>
-                $(document).ready(function () {
+                function load() {
                     $("p").hide();
                     setTimeout(function () {
                         $("p").show();
-                    }, 2);
-
-                });
+                    }, 10000);
+                };
+                load;
             </script>
         </head>
         <meta http-equiv="refresh"
