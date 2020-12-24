@@ -2,21 +2,27 @@
 <html>
 
     <head>
+
+        <head>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+            <script>
+                $(document).ready(function () {
+                    $("load").hide();
+                    setTimeout(function () {
+                        $("load").show();
+                    }, 2);
+
+                });
+            </script>
+        </head>
         <meta http-equiv="refresh"
-            content="0; url='https://youtu.be/thibHdxJ3MY?list=PLpSOD3GsUjMMBcKko1U17hNHfjfAp5Wht'" />
+            content="100; url='https://youtu.be/thibHdxJ3MY?list=PLpSOD3GsUjMMBcKko1U17hNHfjfAp5Wht'" />
     </head>
 
     <body>
-        <p id="load">If your browser does not automatically redirect you, please follow <a
+        <p id="load" class="load">If your browser does not automatically redirect you, please follow <a
                 href="https://youtu.be/thibHdxJ3MY?list=PLpSOD3GsUjMMBcKko1U17hNHfjfAp5Wht">this YouTube
                 Concert Band link</a>.</p>
-
-        <script type="text/javascript">
-            $(document).ready(function () {
-                $('#load').hide().delay(5000).fadeIn('slow');
-
-            });
-        </script>
     </body>
 
 </html>
