@@ -1,0 +1,3 @@
+[submodule "greencam"]
+	path = greencam
+	url = https://github.com/PeterKW/greencam
