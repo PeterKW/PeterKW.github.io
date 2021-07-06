@@ -8,13 +8,12 @@
     </head>
 
     <body>
-        <p>If your browser does not properly load the video, please follow <a
+    <p>If your browser does not properly load the video, please follow <a
                 href="https://youtu.be/PxKD4IAFoBQ">this YouTube
                 Wedding link</a>.</p>
 
-    <iframe width="1380" height="694" src="https://www.youtube.com/embed/PxKD4IAFoBQ" title="Quest Wedding USA September 5th 2020"
-        frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen></iframe>
+    <iframe src="https://www.youtube.com/embed/PxKD4IAFoBQ" style="border:0px #ffffff none;" name="Quest Wedding USA September 5th 2020" scrolling="no" frameborder="1" marginheight="0px" marginwidth="0px" height="90%px" width="100%px" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen></iframe>
     </body>
 
 </html>
