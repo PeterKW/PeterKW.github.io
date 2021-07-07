@@ -1,17 +1,95 @@
 <!-- https://www.w3docs.com/snippets/html/how-to-redirect-a-web-page-in-html.html -->
 <!-- peterkw.github.io/QuestWedding/July11 -->
-<html>
+<!-- https://www.youtube.com/playlist?list=UU1l64GwVL9n_C4R9RL-N8pg&playnext=1&index=1 -->
+
+<!DOCTYPE html>
+<html lang="en-US">
 
     <head>
-    <!-- <meta http-equiv="refresh"
-            content="0; url='https://www.youtube.com/playlist?list=PLpSOD3GsUjMNjuakGAOQVV7TATDvx_gn5'" /> -->
+        <meta charset='utf-8'>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width,maximum-scale=2">
+        <link rel="stylesheet" type="text/css" media="screen"
+            href="/assets/css/style.css?v=9b96008b3c0df1a8269e489179d9a2cc87b9c116">
+
+        <!-- Begin Jekyll SEO tag v2.7.1 -->
+        <title>Quest Wedding</title>
+        <meta name="generator" content="Jekyll v3.9.0" />
+        <meta property="og:title" content="QuestWedding" />
+        <meta property="og:locale" content="en_US" />
+        <link rel="canonical" href="https://peterkw.github.io/QuestWedding/July11.html" />
+        <meta property="og:url" content="https://peterkw.github.io/QuestWedding/July11.html" />
+        <meta property="og:site_name" content="QuestWedding" />
+        <meta name="twitter:card" content="summary" />
+        <meta property="twitter:title" content="QuestWedding" />
+        <script type="application/ld+json">
+
+{"headline":"QuestWedding","url":"https://peterkw.github.io/QuestWedding/July11.html","@type":"WebPage","@context":"https://schema.org"}</script>
+
+<!-- End Jekyll SEO tag -->
+
+<style>
+    img.questLogo {
+        position: -webkit-sticky;
+        position: sticky;
+        top:0;
+        padding: 5px;
+        right: 0;
+        float: right;
+        max-width: 10%;
+        border: 0;
+        outline: none;
+        box-shadow: none;
+        -webkit-box-shadow: none;
+    }
+</style>
+
     </head>
 
     <body>
-        <!-- <p>If your browser does not automatically redirect you, please follow <a
-                href="https://www.youtube.com/playlist?list=PLpSOD3GsUjMNjuakGAOQVV7TATDvx_gn5">this YouTube
-                Wedding link</a>.</p> -->
-                <p>Quest Scottish Wedding Premier will go live here on Jully 11 2021!</p>
+                <img class="questLogo" src="thistle and rose with bee.png" alt="Quest Logo">
+
+        <!-- HEADER -->
+        <div id="header_wrap" class="outer">
+            <header class="inner">
+                <h1 id="project_title">Quest Wedding July11</h1>
+                <h2 id="project_tagline">September 5th 2020</h2>
+            </header>
+        </div>
+
+        <!-- MAIN CONTENT -->
+            <div id="main_wrap" class="outer">
+                <!-- https://www.w3docs.com/snippets/html/how-to-redirect-a-web-page-in-html.html -->
+                <!-- peterkw.github.io/QuestWedding/July11 -->
+                <!-- <iframe width=”560″ height=”315″ src=”https://www.youtube.com/embed/videoseries?list=PLRiOTYOXvFzaARHOdX5Q7aw70NLaIMPem” frameborder=”0″ allow=”accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture” allowfullscreen></iframe> -->
+
+                    <head>
+                        <!--<meta http-equiv="refresh"
+            content="0; url='https://www.youtube.com/playlist?list=UU1l64GwVL9n_C4R9RL-N8pg&playnext=1&index=1'" />-->
+                    </head>
+
+                    <body>
+                        <p align="center"><iframe src="https://www.youtube.com/embed/videoseries?list=UU1l64GwVL9n_C4R9RL-N8pg" style="border:0px #ffffff none;"
+                            name="Quest Wedding July11 September 5th 2020" scrolling="no" frameborder="1"
+                            marginheight="10px" marginwidth="10px" height="600" width="95%"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen=""></iframe></p>
+                        <p>If your browser does not properly load the video, please follow this <a href="https://www.youtube.com/playlist?list=UU1l64GwVL9n_C4R9RL-N8pg&playnext=1&index=1">YouTube
+                                Wedding link</a>.</p>
+                    </body>
+
+                </div>
+        </div>
+
+        <!-- FOOTER  -->
+        <div id="footer_wrap" class="outer">
+            <footer class="inner">
+
+                <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+            </footer>
+        </div>
+
+
     </body>
 
 </html>
