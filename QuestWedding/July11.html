@@ -42,18 +42,23 @@
         box-shadow: none;
         -webkit-box-shadow: none;
     }
+    #pcountdown {
+        text-align: center;
+        font-size: 60px;
+        margin-top: 0px;
+    }
 </style>
 
     </head>
 
     <body>
-                <img class="questLogo" src="thistle and rose with bee.png" alt="Quest Logo">
+        <img class="questLogo" src="thistle and rose with bee.png" alt="Quest Logo">
 
         <!-- HEADER -->
         <div id="header_wrap" class="outer">
             <header class="inner">
-                <h1 id="project_title">Quest Wedding July11</h1>
-                <h2 id="project_tagline">September 5th 2020</h2>
+                <h1 id="project_title">Quest Wedding Premier Scotland</h1>
+                <h2 id="project_tagline">July 11th 2021 6pm BST</h2>
             </header>
         </div>
 
@@ -69,14 +74,54 @@
                     </head>
 
                     <body>
-                        <p align="center"><iframe loading="lazy" src="https://www.youtube.com/embed/videoseries?list=UU1l64GwVL9n_C4R9RL-N8pg" style="border:0px #ffffff none;"
-                            name="Quest Wedding July11 September 5th 2020" scrolling="no" frameborder="1"
+                        <p id="pcountdown">Premier in...</p>
+                        <p id="iframe" align="center" style="display: none;"><iframe loading="lazy" src="https://www.youtube.com/embed/videoseries?list=UU1l64GwVL9n_C4R9RL-N8pg" style="border:0px #ffffff none;"
+                            name="Quest Wedding Premier July 11 Scotland" scrolling="no" frameborder="1"
                             marginheight="10px" marginwidth="10px" height="600" width="95%"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowfullscreen=""></iframe></p>
                             <p\>
-                        <p>If your browser does not properly load the video, please follow this <a href="https://www.youtube.com/playlist?list=UU1l64GwVL9n_C4R9RL-N8pg&playnext=1&index=1">YouTube
+                        <p>If your browser does not properly load the video once countdown target has been reached, please follow this <a href="https://www.youtube.com/playlist?list=UU1l64GwVL9n_C4R9RL-N8pg&playnext=1&index=1">YouTube
                                 Wedding link</a>.</p>
+
+                         <script>
+                            // Set the date we're counting down to
+                            var countDownDate = new Date("Jul 11, 2021 18:00:00 BST").getTime();
+    var countDownDate = new Date("Jul 8, 2021 2:09:40").getTime();
+
+                            // Update the count down every 1 second
+                            var x = setInterval(function() {
+
+                            // Get today's date and time
+                            var now = new Date().getTime();
+
+                            // Find the distance between now and the count down date
+                            var distance = countDownDate - now;
+
+                            // Time calculations for days, hours, minutes and seconds
+                            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                            // Output the result in an element with id="demo"
+                            document.getElementById("pcountdown").innerHTML = days + "d " + hours + "h "
+                            + minutes + "m " + seconds + "s ";
+
+                            // If the count down is over, write some text
+                            var frame = document.querySelector('#iframe');
+
+                            if (distance < 2 * 60 * 60 * 1000) {
+                                frame.style.display = 'block';
+                            }else{
+                            }
+                            if (distance < 0) {
+                                    clearInterval(x);
+                                    document.getElementById("pcountdown").innerHTML = "Premier Starting Soon...";
+                            }
+                            }, 1000);
+                        </script>
+
                     </body>
 
                 </div>
