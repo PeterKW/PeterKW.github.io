@@ -11,3 +11,5 @@
 6. [LJ childhood family slideshow video 2020-09-05 USA Wedding Edition](https://www.youtube.com/embed/q6_TbDV-cH4)
 
 7. [LJ childhood family slideshow video 2021 USA Wedding Edition + Pictures from Wedding](https://www.youtube.com/embed/IXiRHlK9BL0)
+
+8. [J&M West singing D West Poem Parent Experiences of Child](https://peterkw.github.io/QuestWedding/J&M%20West%20singing%20D%20West%20Poem%20Parent%20Experiences%20of%20Child.mp4)
