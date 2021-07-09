@@ -87,13 +87,13 @@
                             </div>
                         </p>
                         <p\>
-                        <p>If your browser does not properly load the video once countdown target has been reached, please follow this <a href="https://www.youtube.com/playlist?list=UU1l64GwVL9n_C4R9RL-N8pg&playnext=1&index=1">YouTube
+                        <p id="iframefallback" style="display: none;">If your browser does not properly load the video once countdown target has been reached, please follow this <a href="https://www.youtube.com/playlist?list=UU1l64GwVL9n_C4R9RL-N8pg&playnext=1&index=1">YouTube
                                 Wedding link</a>.</p>
 
                          <script>
                             // Set the date we're counting down to
                             var countDownDate = new Date("Jul 11, 2021 18:00:00 UTC+1").getTime();
-                            //var countDownDate = new Date("Jul 8, 2021 18:00:00 UTC+1").getTime();
+                            var countDownDate = new Date("Jul 10, 2021 00:16:00 UTC+1").getTime();
 
                             // Update the count down every 1 second
                             var x = setInterval(function() {
@@ -116,9 +116,11 @@
 
                             // If the count down is over, write some text
                             var frame = document.querySelector('#iframe');
+                            var explainer = document.querySelector('iframefallback');
 
                             if (distance < 2 * 60 * 60 * 1000) {
                                 frame.style.display = 'block';
+                                explainer.style.display = 'block';
                             }else{
                             }
                             if (distance < 0) {
