@@ -1,3 +1,6 @@
 [submodule "greencam"]
 	path = greencam
 	url = https://github.com/PeterKW/greencam
+[submodule "Thistle-LifestyleManagementChapters"]
+	path = Thistle-LifestyleManagementChapters
+	url = https://github.com/PeterKW/Thistle-LifestyleManagementChapters
