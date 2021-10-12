@@ -4,3 +4,6 @@
 [submodule "Thistle-LifestyleManagementChapters"]
 	path = Thistle-LifestyleManagementChapters
 	url = https://github.com/PeterKW/Thistle-LifestyleManagementChapters
+[submodule "Thistle-SeeLifeDifferently"]
+	path = Thistle-SeeLifeDifferently
+	url = https://github.com/PeterKW/Thistle-SeeLifeDifferently
