@@ -5,12 +5,12 @@
 
     <head>
         <meta http-equiv="refresh"
-            content="0; url='https://PeterKW.github.io/Music/KCU2024Christmas'" />
+            content="0; url='https://youtube.com/playlist?list=PLpSOD3GsUjMOxDbERJeY4I8sIqG-QLXpF'" />
     </head>
 
     <body>
         <p>If your browser does not automatically redirect you, please follow <a
-                href="https://PeterKW.github.io/Music/KCU2024Christmas">this link</a>.</p>
+                href="https://youtube.com/playlist?list=PLpSOD3GsUjMOxDbERJeY4I8sIqG-QLXpF">this link</a>.</p>
     </body>
 
 </html>
