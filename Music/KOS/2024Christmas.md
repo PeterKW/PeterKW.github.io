@@ -10,7 +10,7 @@
 
     <body>
         <p>If your browser does not automatically redirect you, please follow <a
-                href="https://youtube.com/playlist?list=PLpSOD3GsUjMOxDbERJeY4I8sIqG-QLXpF">this link</a>.</p>
+                href="https://youtube.com/playlist?list=PLpSOD3GsUjMM6csEG9M_oKTyd1ti7sQMK">this link</a>.</p>
     </body>
 
 </html>
