@@ -1,5 +1,5 @@
 <!-- https://www.w3docs.com/snippets/html/how-to-redirect-a-web-page-in-html.html -->
-<!-- PeterKW.github.io/Music/KCU2024Christmas -->
+<!-- PeterKW.github.io/Music/KOS/2024Christmas -->
 <!-- Requires https:// otherwise appends to root url-->
 <html>
 
