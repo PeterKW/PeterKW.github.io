@@ -1,5 +1,5 @@
 <!-- https://www.w3docs.com/snippets/html/how-to-redirect-a-web-page-in-html.html -->
-<!-- PeterKW.github.io/Music/KCU2024Christmas -->
+<!-- PeterKW.github.io/Music/KCU2025Spring -->
 <!-- Requires https:// otherwise appends to root url-->
 <html>
 
@@ -10,7 +10,7 @@
 
     <body>
         <p>If your browser does not automatically redirect you, please follow <a
-                href="https://youtube.com/playlist?list=PLpSOD3GsUjMOxDbERJeY4I8sIqG-QLXpF">this link</a>.</p>
+                href="https://youtube.com/playlist?list=PLXJaCCnOYWdA5sCYZUqytqkmU2bXcD5RW">this link</a>.</p>
     </body>
 
 </html
