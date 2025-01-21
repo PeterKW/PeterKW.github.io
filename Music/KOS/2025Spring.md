@@ -5,7 +5,7 @@
 
     <head>
         <meta http-equiv="refresh"
-            content="0; url='https://youtube.com/playlist?list=PLXJaCCnOYWdA5sCYZUqytqkmU2bXcD5RW'" />
+            content="0; 'https://youtube.com/playlist?list=PLpSOD3GsUjMMmGRVuFcj5m9QphNKm5S5y&si=kCWPA1n-a3s1lUoq'" />
     </head>
 
     <body>
