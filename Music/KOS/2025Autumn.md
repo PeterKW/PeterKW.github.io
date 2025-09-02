@@ -15,30 +15,3 @@
     </body>
 
 </html>
-
-<!--
-<html>
-
-    <head>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script>
-            function load() {
-                $("p").hide();
-                setTimeout(function () {
-                    $("p").show();
-                }, 10);
-            };
-            load;
-        </script>
-        <meta http-equiv="refresh" content="1;
-            url='https://youtu.be/aaaaaa?list=aaaaaa'" />
-    </head>
-
-    <body>
-        <p id=" load" class="load">If your browser does not automatically redirect you, please follow <a
-                href="https://youtu.be/aaaaaa?list=aaaaaa">this YouTube
-                ... link</a></p>
-    </body>
-
-</html>
--->
