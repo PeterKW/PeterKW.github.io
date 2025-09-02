@@ -1,0 +1,44 @@
+<!-- https://www.w3docs.com/snippets/html/how-to-redirect-a-web-page-in-html.html -->
+<!-- PeterKW.github.io/Music/KOS/2025Autumn -->
+<!-- Requires https:// otherwise appends to root url-->
+<html>
+
+    <head>
+        <meta http-equiv="refresh"
+            content="0; url='https://youtube.com/playlist?list=PLpSOD3GsUjMNMPbsnxUO5wu2oCgHcMbNG'" />
+    </head>
+
+    <body>
+        <p>If your browser does not automatically redirect you, please follow <a
+                href="https://youtube.com/playlist?list=PLpSOD3GsUjMNMPbsnxUO5wu2oCgHcMbNG">this YouTube
+                KOS link</a>.</p>
+    </body>
+
+</html>
+
+<!--
+<html>
+
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+            function load() {
+                $("p").hide();
+                setTimeout(function () {
+                    $("p").show();
+                }, 10);
+            };
+            load;
+        </script>
+        <meta http-equiv="refresh" content="1;
+            url='https://youtu.be/aaaaaa?list=aaaaaa'" />
+    </head>
+
+    <body>
+        <p id=" load" class="load">If your browser does not automatically redirect you, please follow <a
+                href="https://youtu.be/aaaaaa?list=aaaaaa">this YouTube
+                ... link</a></p>
+    </body>
+
+</html>
+-->
