@@ -5,12 +5,12 @@
 
     <head>
         <meta http-equiv="refresh"
-            content="0; url='https://youtube.com/playlist?list=PLpSOD3GsUjMOjMc6jwlfA-oNXb2VZ1uH1'" />
+            content="0; url='https://youtube.com/playlist?list=PLpSOD3GsUjMOqmc5h0PPOGW9GvZ_FYYu-'" />
     </head>
 
     <body>
         <p>If your browser does not automatically redirect you, please follow <a
-                href="https://youtube.com/playlist?list=PLpSOD3GsUjMOjMc6jwlfA-oNXb2VZ1uH1">this YouTube
+                href="https://youtube.com/playlist?list=PLpSOD3GsUjMOqmc5h0PPOGW9GvZ_FYYu-">this YouTube
                 KCU link</a>.</p>
     </body>
 
