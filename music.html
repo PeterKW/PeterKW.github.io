@@ -2,68 +2,96 @@
 <html>
 <head>
 <meta charset="UTF-8" />
-<title>Music Playlist Redirect</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<title>Playlist Redirect</title>
+<style>
+  body {
+    background: #111;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding-top: 60px;
+  }
+  .box {
+    background: #222;
+    border: 1px solid #444;
+    padding: 20px;
+    display: inline-block;
+    border-radius: 10px;
+    max-width: 90%;
+  }
+  a { color: #9cf; }
+</style>
 </head>
 
-<body style="font-family: sans-serif; padding: 20px;">
+<body>
+<div class="box">
+  <h2>Music Playlist Redirect</h2>
+  <p id="msg">Loading…</p>
+</div>
 
-<h2>Music Playlist Redirect</h2>
-<p>Loading…</p>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script>
-// Get ?key=XXXX from URL
-const params = new URLSearchParams(window.location.search);
-const key = params.get("key");
+(async () => {
+  const msg = t => document.getElementById("msg").innerText = t;
 
-if (!key) {
-    document.body.innerHTML = "<h3>❌ No key provided.</h3>";
-    throw new Error("Missing key");
-}
+  const params = new URLSearchParams(window.location.search);
+  const key = params.get("key");
 
-// Compute SHA256 of key
-function hashKey(input) {
-    return "SHA256:" + CryptoJS.SHA256(input).toString();
-}
+  if (!key) {
+    msg("No playlist key provided.");
+    return;
+  }
 
-const keyhash = hashKey(key);
+  msg("Loading playlists…");
 
-// Load encrypted playlists.json
-fetch("playlists.json")
-    .then(r => r.json())
-    .then(data => {
-        const entry = data.find(e => e.keyhash === keyhash);
+  // Load encrypted playlists.json
+  let playlists;
+  try {
+    const res = await fetch("playlists.json?cache=" + Date.now());
+    playlists = await res.json();
+  } catch (e) {
+    msg("Failed to load playlists.json");
+    console.error(e);
+    return;
+  }
 
-        if (!entry) {
-            document.body.innerHTML = `<h3>❌ Playlist not found for key: ${key}</h3>`;
-            return;
-        }
+  // Match encrypted entry by hashing the key
+  const keyhash = "SHA256:" + CryptoJS.SHA256(key).toString();
+  const entry = playlists.find(p => p.keyhash === keyhash);
 
-        try {
-            const salt = CryptoJS.enc.Base64.parse(entry.salt);
-            const iv = CryptoJS.enc.Base64.parse(entry.iv);
+  if (!entry) {
+    msg("Playlist not found: " + key);
+    return;
+  }
 
-            const decrypted = CryptoJS.AES.decrypt(entry.ciphertext, 
-                MASTER_PASSWORD = "MusicPlaylistRedirect", 
-                { iv, salt }
-            ).toString(CryptoJS.enc.Utf8);
+  msg("Decrypting…");
 
-            if (!decrypted) {
-                document.body.innerHTML = "<h3>❌ Decryption failed.</h3>";
-                return;
-            }
+  const salt = CryptoJS.enc.Base64.parse(entry.salt);
+  const iv = CryptoJS.enc.Base64.parse(entry.iv);
 
-            // Success → Redirect to playlist URL
-            window.location.href = decrypted.trim();
+  // Master password used by GitHub Action
+  const MASTER_PASSWORD = "MusicPlaylistRedirect";
 
-        } catch (err) {
-            document.body.innerHTML = `<h3>❌ Error: ${err.message}</h3>`;
-        }
-    })
-    .catch(err => {
-        document.body.innerHTML = `<h3>❌ Failed to load playlist list.</h3>`;
-        console.error(err);
-    });
+  let decrypted;
+  try {
+    const out = CryptoJS.AES.decrypt(entry.ciphertext, MASTER_PASSWORD, { iv, salt });
+    decrypted = out.toString(CryptoJS.enc.Utf8);
+  } catch (e) {
+    msg("Decryption error.");
+    console.error(e);
+    return;
+  }
+
+  if (!decrypted || !decrypted.startsWith("http")) {
+    msg("Decryption failed.");
+    console.log("Decrypted output:", decrypted);
+    return;
+  }
+
+  msg("Redirecting…");
+  window.location.href = decrypted;
+
+})();
 </script>
 
 </body>
