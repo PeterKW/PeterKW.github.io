@@ -44,7 +44,7 @@
 
     status("Loading playlists…");
 
-    // 2️⃣ Load the encrypted playlist list
+    // 2️⃣ Load encrypted playlist list
     let playlists;
     try {
       const res = await fetch("playlists.json?cache=" + Date.now());
@@ -54,36 +54,32 @@
       return;
     }
 
-    // 3️⃣ Compute SHA256 of key
+    // 3️⃣ Compute hash of key
     const keyhash = "SHA256:" + CryptoJS.SHA256(key).toString();
 
-    // 4️⃣ Find matching entry
+    // 4️⃣ Find entry by keyhash
     const entry = playlists.find(p => p.keyhash === keyhash);
 
     if (!entry) {
-      status("Playlist not found: " + key);
+      status("Playlist not found");
       return;
     }
 
     status("Decrypting…");
 
-    // 5️⃣ Decode salt + iv
-    const salt = CryptoJS.enc.Base64.parse(entry.salt);
-    const iv   = CryptoJS.enc.Base64.parse(entry.iv);
-
-    // 6️⃣ Decrypt using your master password
+    // 5️⃣ Correct decryption (NO salt/iv passed!)
     const MASTER_PASSWORD = "MusicPlaylistRedirect";
 
     let decrypted;
     try {
-      const out = CryptoJS.AES.decrypt(entry.ciphertext, MASTER_PASSWORD, { iv, salt });
+      const out = CryptoJS.AES.decrypt(entry.ciphertext, MASTER_PASSWORD);
       decrypted = out.toString(CryptoJS.enc.Utf8);
     } catch (e) {
       status("Decryption error.");
       return;
     }
 
-    // 7️⃣ Validate
+    // 6️⃣ Validate decrypted URL
     if (!decrypted || !decrypted.startsWith("http")) {
       status("Decryption failed.");
       return;
@@ -91,11 +87,11 @@
 
     status("Redirecting…");
 
-    // 8️⃣ Go to the playlist
+    // 7️⃣ Redirect
     window.location.href = decrypted;
 
   })();
   </script>
 
 </body>
-</html>
+  </html>
