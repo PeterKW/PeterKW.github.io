@@ -1,3 +1,6 @@
 theme: jekyll-theme-slate
+
 include:
   - playlists.json
+
+force_update: true  # Required to force GitHub to rebuild
