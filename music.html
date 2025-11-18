@@ -2,140 +2,221 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Playlist Redirect</title>
+  <title>Music Playlist Redirect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #0b1020;
+      background: #050816;
       color: #f5f5f5;
+      margin: 0;
       padding: 1.5rem;
-      line-height: 1.6;
+      line-height: 1.5;
     }
     .card {
-      max-width: 520px;
+      max-width: 600px;
       margin: 0 auto;
+      background: #0b1020;
+      border-radius: 16px;
       padding: 1.5rem;
-      border-radius: 12px;
-      background: #181c30;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+    }
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.4rem;
+    }
+    p {
+      margin: 0.25rem 0;
+      font-size: 0.95rem;
+    }
+    code {
+      background: #111528;
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
     }
     .status {
       margin-top: 0.75rem;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+    }
+    .status.ok {
+      color: #a8ffb5;
+    }
+    .status.err {
+      color: #ff9ca4;
+    }
+    .field-group {
+      margin-top: 1rem;
+    }
+    label {
+      font-size: 0.85rem;
+      display: block;
+      margin-bottom: 0.2rem;
       opacity: 0.9;
     }
-    input[type=password] {
+    input {
       width: 100%;
-      padding: 0.6rem;
-      margin-top: 0.8rem;
-      font-size: 1rem;
+      box-sizing: border-box;
+      padding: 0.5rem 0.6rem;
       border-radius: 8px;
-      border: none;
-      background: #0f1425;
-      color: #fff;
+      border: 1px solid #33384f;
+      background: #111528;
+      color: #f5f5f5;
+      font-size: 0.9rem;
+      font-family: inherit;
     }
     button {
-      margin-top: 1rem;
-      padding: 0.6rem 1rem;
-      font-size: 1rem;
+      margin-top: 0.6rem;
+      padding: 0.55rem 1.2rem;
+      border-radius: 999px;
       border: none;
-      border-radius: 8px;
-      background: #3a4af0;
-      color: #fff;
+      background: #3652f0;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
       cursor: pointer;
+    }
+    button:hover {
+      filter: brightness(1.1);
+    }
+    .small {
+      font-size: 0.8rem;
+      opacity: 0.8;
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <p class="status" id="status">Loading…</p>
+    <h1>Music Playlist Redirect</h1>
+    <p class="small">
+      This page looks up an encrypted playlist by <code>key</code> and redirects you to YouTube.
+    </p>
+    <p class="small">
+      Use a URL like <code>?key=KOSChristmas2025</code> or enter a key below.
+    </p>
 
-    <div id="pwBox" style="display:none;">
-      <p style="opacity:0.8; font-size:0.85rem;">
-        Enter your playlist code:
-      </p>
-      <input type="password" id="pwInput" placeholder="Enter key…">
-      <button onclick="submitPassword()">Unlock</button>
+    <div class="field-group">
+      <label for="keyInput">Playlist key</label>
+      <input id="keyInput" type="text" placeholder="e.g. KOSChristmas2025">
+      <button id="checkBtn">Check / Go to Playlist</button>
     </div>
+
+    <div id="status" class="status"></div>
   </div>
 
   <script>
-    async function sha256(text) {
+    const MASTER_PASSWORD = "MusicPlaylistRedirect";
+    const PLAYLISTS_URL = "playlists.json";
+
+    const statusEl = document.getElementById("status");
+    const keyInput = document.getElementById("keyInput");
+    const checkBtn = document.getElementById("checkBtn");
+
+    function setStatus(msg, type = "info") {
+      statusEl.textContent = msg;
+      statusEl.classList.remove("ok", "err");
+      if (type === "ok") statusEl.classList.add("ok");
+      if (type === "err") statusEl.classList.add("err");
+    }
+
+    async function sha256Hex(text) {
       const enc = new TextEncoder().encode(text);
-      const digest = await crypto.subtle.digest("SHA-256", enc);
-      return Array.from(new Uint8Array(digest))
-        .map(b => b.toString(16).padStart(2,"0"))
+      const buf = await crypto.subtle.digest("SHA-256", enc);
+      return Array.from(new Uint8Array(buf))
+        .map(b => b.toString(16).padStart(2, "0"))
         .join("");
     }
 
-    function getParam(name) {
-      return new URLSearchParams(window.location.search).get(name);
-    }
-
-    function base64ToBytes(b64) {
-      return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-    }
-
-    async function decryptEntry(aesKey, entry) {
-      const iv = base64ToBytes(entry.iv);
-      const data = base64ToBytes(entry.ciphertext);
-
-      const cipher = await crypto.subtle.importKey(
+    async function decryptUrl(entry) {
+      const keyBytes = new TextEncoder().encode(MASTER_PASSWORD);
+      const keyHash = await crypto.subtle.digest("SHA-256", keyBytes);
+      const aesKey = await crypto.subtle.importKey(
         "raw",
-        aesKey,
-        "AES-GCM",
+        keyHash,
+        { name: "AES-GCM" },
         false,
         ["decrypt"]
       );
 
-      const plaintext = await crypto.subtle.decrypt(
-        { name: "AES-GCM", iv },
-        cipher,
-        data
+      const ivBytes = Uint8Array.from(atob(entry.iv), c => c.charCodeAt(0));
+      const cipherBuf = Uint8Array.from(atob(entry.ciphertext), c => c.charCodeAt(0));
+
+      const decrypted = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: ivBytes },
+        aesKey,
+        cipherBuf
       );
 
-      return new TextDecoder().decode(plaintext);
+      return new TextDecoder().decode(decrypted);
     }
 
-    async function unlockWithKey(userKey) {
-      const statusEl = document.getElementById("status");
-
-      const hashedKey = "sha256:" + await sha256(userKey);
-
-      const resp = await fetch("playlists.json");
-      const entries = await resp.json();
-
-      const aesKey = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("MusicPlaylistRedirect"));
-
-      for (const entry of entries) {
-        if (entry.keyhash === hashedKey) {
-          try {
-            const url = await decryptEntry(aesKey, entry);
-            statusEl.textContent = "Match found. Redirecting…";
-            window.location.href = url;
-            return;
-          } catch (e) {}
-        }
+    async function findAndGo(key) {
+      if (!key) {
+        setStatus("Please enter a key (e.g. KOSChristmas2025).", "err");
+        return;
       }
 
-      statusEl.textContent = "No playlist matched this key.";
+      try {
+        setStatus("Loading playlists.json…");
+        const res = await fetch(PLAYLISTS_URL, { cache: "no-cache" });
+        if (!res.ok) {
+          setStatus("Could not load playlists.json (" + res.status + ").", "err");
+          return;
+        }
+        const list = await res.json();
+        if (!Array.isArray(list)) {
+          setStatus("playlists.json is not an array.", "err");
+          return;
+        }
+
+        const hex = await sha256Hex(key);
+        const targetHash = "sha256:" + hex;
+
+        const match = list.find(e => e.keyhash === targetHash);
+        if (!match) {
+          setStatus("No playlist matched this key: " + key + "\\n(keyhash: " + targetHash + ")", "err");
+          return;
+        }
+
+        setStatus("Playlist found. Decrypting…");
+
+        let url;
+        try {
+          url = await decryptUrl(match);
+        } catch (e) {
+          console.error(e);
+          setStatus("Error decrypting the playlist URL. Check master password / format.", "err");
+          return;
+        }
+
+        if (!url || !/^https?:\\/\\//i.test(url)) {
+          setStatus("Decrypted value does not look like a valid URL:\\n" + String(url), "err");
+          return;
+        }
+
+        setStatus("Redirecting to:\\n" + url, "ok");
+        setTimeout(() => {
+          window.location.href = url;
+        }, 600);
+
+      } catch (e) {
+        console.error(e);
+        setStatus("Unexpected error: " + e.message, "err");
+      }
     }
 
-    async function submitPassword() {
-      const key = document.getElementById("pwInput").value.trim();
-      if (key) unlockWithKey(key);
-    }
+    checkBtn.addEventListener("click", () => {
+      const key = keyInput.value.trim();
+      findAndGo(key);
+    });
 
-    (async function init() {
-      const statusEl = document.getElementById("status");
-
-      const key = getParam("key");
+    (function initFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      const key = params.get("key");
       if (key) {
-        statusEl.textContent = "Trying key…";
-        await unlockWithKey(key);
-      } else {
-        statusEl.textContent = "Enter playlist key.";
-        document.getElementById("pwBox").style.display = "block";
+        keyInput.value = key;
+        findAndGo(key);
       }
     })();
   </script>
