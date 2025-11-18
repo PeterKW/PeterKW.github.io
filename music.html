@@ -1,98 +1,101 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8" />
-<title>Playlist Redirect</title>
-<style>
-  body {
-    background: #111;
-    color: #eee;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding-top: 60px;
-  }
-  .box {
-    background: #222;
-    border: 1px solid #444;
-    padding: 20px;
-    display: inline-block;
-    border-radius: 10px;
-    max-width: 90%;
-  }
-  a { color: #9cf; }
-</style>
+  <meta charset="UTF-8">
+  <title>Music Playlist Redirect</title>
+  <style>
+    body {
+      background: #111;
+      color: #eee;
+      font-family: system-ui, sans-serif;
+      text-align: center;
+      padding-top: 60px;
+    }
+    .box {
+      display: inline-block;
+      background: #222;
+      border: 1px solid #444;
+      padding: 20px 30px;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 
 <body>
-<div class="box">
-  <h2>Music Playlist Redirect</h2>
-  <p id="msg">Loading…</p>
-</div>
+  <div class="box">
+    <h2>🎵 Music Playlist Redirect</h2>
+    <p id="status">Loading…</p>
+  </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-<script>
-(async () => {
-  const msg = t => document.getElementById("msg").innerText = t;
+  <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+  <script>
+  (async () => {
 
-  const params = new URLSearchParams(window.location.search);
-  const key = params.get("key");
+    const status = msg => document.getElementById("status").innerText = msg;
 
-  if (!key) {
-    msg("No playlist key provided.");
-    return;
-  }
+    // 1️⃣ Read key from URL
+    const params = new URLSearchParams(window.location.search);
+    const key = params.get("key");
 
-  msg("Loading playlists…");
+    if (!key) {
+      status("Missing ?key=");
+      return;
+    }
 
-  // Load encrypted playlists.json
-  let playlists;
-  try {
-    const res = await fetch("playlists.json?cache=" + Date.now());
-    playlists = await res.json();
-  } catch (e) {
-    msg("Failed to load playlists.json");
-    console.error(e);
-    return;
-  }
+    status("Loading playlists…");
 
-  // Match encrypted entry by hashing the key
-  const keyhash = "SHA256:" + CryptoJS.SHA256(key).toString();
-  const entry = playlists.find(p => p.keyhash === keyhash);
+    // 2️⃣ Load the encrypted playlist list
+    let playlists;
+    try {
+      const res = await fetch("playlists.json?cache=" + Date.now());
+      playlists = await res.json();
+    } catch (e) {
+      status("Failed to load playlists.json");
+      return;
+    }
 
-  if (!entry) {
-    msg("Playlist not found: " + key);
-    return;
-  }
+    // 3️⃣ Compute SHA256 of key
+    const keyhash = "SHA256:" + CryptoJS.SHA256(key).toString();
 
-  msg("Decrypting…");
+    // 4️⃣ Find matching entry
+    const entry = playlists.find(p => p.keyhash === keyhash);
 
-  const salt = CryptoJS.enc.Base64.parse(entry.salt);
-  const iv = CryptoJS.enc.Base64.parse(entry.iv);
+    if (!entry) {
+      status("Playlist not found: " + key);
+      return;
+    }
 
-  // Master password used by GitHub Action
-  const MASTER_PASSWORD = "MusicPlaylistRedirect";
+    status("Decrypting…");
 
-  let decrypted;
-  try {
-    const out = CryptoJS.AES.decrypt(entry.ciphertext, MASTER_PASSWORD, { iv, salt });
-    decrypted = out.toString(CryptoJS.enc.Utf8);
-  } catch (e) {
-    msg("Decryption error.");
-    console.error(e);
-    return;
-  }
+    // 5️⃣ Decode salt + iv
+    const salt = CryptoJS.enc.Base64.parse(entry.salt);
+    const iv   = CryptoJS.enc.Base64.parse(entry.iv);
 
-  if (!decrypted || !decrypted.startsWith("http")) {
-    msg("Decryption failed.");
-    console.log("Decrypted output:", decrypted);
-    return;
-  }
+    // 6️⃣ Decrypt using your master password
+    const MASTER_PASSWORD = "MusicPlaylistRedirect";
 
-  msg("Redirecting…");
-  window.location.href = decrypted;
+    let decrypted;
+    try {
+      const out = CryptoJS.AES.decrypt(entry.ciphertext, MASTER_PASSWORD, { iv, salt });
+      decrypted = out.toString(CryptoJS.enc.Utf8);
+    } catch (e) {
+      status("Decryption error.");
+      return;
+    }
 
-})();
-</script>
+    // 7️⃣ Validate
+    if (!decrypted || !decrypted.startsWith("http")) {
+      status("Decryption failed.");
+      return;
+    }
+
+    status("Redirecting…");
+
+    // 8️⃣ Go to the playlist
+    window.location.href = decrypted;
+
+  })();
+  </script>
 
 </body>
 </html>
