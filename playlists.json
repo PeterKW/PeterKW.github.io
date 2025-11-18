@@ -1,14 +1,8 @@
 [
   {
-    "keyhash": "SHA256:bc37d034bad564583790a46f19d807abfe519c5671395fd494d8cce506c42947",
-    "salt": "mlOLzyGZFyNZ90F5ghhEEA==",
-    "iv": "/bMdF7lOjr8N+epA3g2LVw==",
-    "ciphertext": "U2FsdGVkX1+aU4vPIZkXI1n3QXmCGEQQMxmSbzeX+W9e2WG9+vqxSdakd60IvFRmyH9w58wfs/4="
-  },
-  {
     "keyhash": "SHA256:4901e330ad5b0697ddd5a8ae272e6c842900536eabb3252bd457855ed570d224",
-    "salt": "bHvMekRw1J20CTQNGMMpZA==",
-    "iv": "7IcZgNis6Z217lr1Bch3OQ==",
-    "ciphertext": "U2FsdGVkX19se8x6RHDUnbQJNA0YwylkScPwtSXJRUFly8DVo6GjsyNaLFEZeMRnx7S7owXIHmeg4zxKpYXPK1deY7KpLtTnn6cs+v0Ntsjzb/jDuMmBD0WyV18vsbpnWLkGUgvO90U="
+    "salt": "auoQBTWFG4wRNMiZnqnjAQ==",
+    "iv": "/vjmCg0i54dsD7dVayZC7Q==",
+    "ciphertext": "U2FsdGVkX19q6hAFNYUbjBE0yJmeqeMB2a4h2rhLjHn7OIy+sZYMAslan1mYucv70j077iSSHGfaAQ3Tyhpq1LxppL8rJFLd6rnRDkMXvdMs6lzdZn1d7AmlauQuAODAyXppMKrdBAQ="
   }
 ]
