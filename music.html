@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Playlist Redirect</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0b1020;
+      color: #f5f5f5;
+      padding: 1.5rem;
+      line-height: 1.6;
+    }
+    .card {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      border-radius: 12px;
+      background: #181c30;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+    }
+    .status {
+      margin-top: 0.75rem;
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+    input[type=password] {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.8rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+      background: #0f1425;
+      color: #fff;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: #3a4af0;
+      color: #fff;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <p class="status" id="status">Loading…</p>
+
+    <div id="pwBox" style="display:none;">
+      <p style="opacity:0.8; font-size:0.85rem;">
+        Enter your playlist code:
+      </p>
+      <input type="password" id="pwInput" placeholder="Enter key…">
+      <button onclick="submitPassword()">Unlock</button>
+    </div>
+  </div>
+
+  <script>
+    const PBKDF2_ITERATIONS = 200000;
+    const PBKDF2_HASH       = "SHA-256";
+    const AES_KEY_LENGTH    = 256;
+    const IV_LENGTH_BYTES   = 12;
+
+    function getParam(name) {
+      return new URLSearchParams(window.location.search).get(name);
+    }
+
+    function base64ToBytes(b64) {
+      const bin = atob(b64);
+      const len = bin.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
+      return bytes;
+    }
+
+    async function deriveAesKeyFromPassword(password, saltB64) {
+      const enc = new TextEncoder();
+      const passBytes = enc.encode(password);
+      const saltBytes = base64ToBytes(saltB64);
+
+      const baseKey = await crypto.subtle.importKey(
+        "raw",
+        passBytes,
+        { name: "PBKDF2" },
+        false,
+        ["deriveKey"]
+      );
+
+      return crypto.subtle.deriveKey(
+        {
+          name: "PBKDF2",
+          salt: saltBytes,
+          iterations: PBKDF2_ITERATIONS,
+          hash: PBKDF2_HASH
+        },
+        baseKey,
+        { name: "AES-GCM", length: AES_KEY_LENGTH },
+        false,
+        ["decrypt"]
+      );
+    }
+
+    async function tryDecryptEntry(password, entry) {
+      const ivBytes     = base64ToBytes(entry.iv);
+      const cipherBytes = base64ToBytes(entry.ciphertext);
+      const aesKey      = await deriveAesKeyFromPassword(password, entry.salt);
+
+      const plainBuf = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: ivBytes },
+        aesKey,
+        cipherBytes
+      );
+
+      return new TextDecoder().decode(plainBuf);
+    }
+
+    let entries = [];
+
+    async function loadPlaylistsJSON() {
+      const resp = await fetch("playlists.json", { cache: "no-store" });
+      entries = await resp.json();
+      if (!Array.isArray(entries)) throw new Error("playlists.json must be an array");
+    }
+
+    async function attemptUnlock(password) {
+      const statusEl = document.getElementById("status");
+      statusEl.textContent = "Trying key…";
+
+      for (const entry of entries) {
+        try {
+          const url = await tryDecryptEntry(password, entry);
+          if (url.startsWith("http")) {
+            statusEl.textContent = "Match found. Redirecting…";
+            window.location.href = url;
+            return;
+          }
+        } catch (e) {}
+      }
+
+      statusEl.textContent = "No playlist matched this key.";
+    }
+
+    async function submitPassword() {
+      const pw = document.getElementById("pwInput").value.trim();
+      if (!pw) {
+        document.getElementById("status").textContent = "Enter a valid key.";
+        return;
+      }
+      await attemptUnlock(pw);
+    }
+
+    (async function init() {
+      const statusEl = document.getElementById("status");
+      const urlKey = getParam("key");
+
+      await loadPlaylistsJSON();
+
+      if (urlKey) {
+        statusEl.textContent = "Key detected. Searching…";
+        await attemptUnlock(urlKey);
+      } else {
+        statusEl.textContent = "Enter playlist key.";
+        document.getElementById("pwBox").style.display = "block";
+      }
+    })();
+  </script>
+</body>
+</html>
