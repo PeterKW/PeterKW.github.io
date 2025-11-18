@@ -1,279 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Music Playlist Redirect</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #050816;
-      color: #f5f5f5;
-      margin: 0;
-      padding: 1.5rem;
-      line-height: 1.5;
-    }
-    .card {
-      max-width: 600px;
-      margin: 0 auto;
-      background: #0b1020;
-      border-radius: 16px;
-      padding: 1.5rem;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
-    }
-    h1 {
-      margin: 0 0 0.5rem;
-      font-size: 1.4rem;
-    }
-    p {
-      margin: 0.25rem 0;
-      font-size: 0.95rem;
-    }
-    code {
-      background: #111528;
-      padding: 0.15rem 0.35rem;
-      border-radius: 4px;
-      font-size: 0.85rem;
-    }
-    .status {
-      margin-top: 0.75rem;
-      font-size: 0.9rem;
-      white-space: pre-wrap;
-    }
-    .status.ok {
-      color: #a8ffb5;
-    }
-    .status.err {
-      color: #ff9ca4;
-    }
-    .field-group {
-      margin-top: 1rem;
-    }
-    label {
-      font-size: 0.85rem;
-      display: block;
-      margin-bottom: 0.2rem;
-      opacity: 0.9;
-    }
-    input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 0.5rem 0.6rem;
-      border-radius: 8px;
-      border: 1px solid #33384f;
-      background: #111528;
-      color: #f5f5f5;
-      font-size: 0.9rem;
-      font-family: inherit;
-    }
-    button {
-      margin-top: 0.6rem;
-      padding: 0.55rem 1.2rem;
-      border-radius: 999px;
-      border: none;
-      background: #3652f0;
-      color: white;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-    }
-    button:hover {
-      filter: brightness(1.1);
-    }
-    .small {
-      font-size: 0.8rem;
-      opacity: 0.8;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>Music Playlist Redirect</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
-<body>
-  <div class="card">
-    <h1>Music Playlist Redirect</h1>
-    <p class="small">
-      This page looks up an encrypted playlist by <code>key</code> and redirects you to YouTube.
-    </p>
-    <p class="small">
-      Use a URL like <code>?key=Christmas2025</code> or enter a key below.
-    </p>
 
-    <div class="field-group">
-      <label for="keyInput">Playlist key</label>
-      <input id="keyInput" type="text" placeholder="e.g. KOSChristmas2025">
-      <button id="checkBtn">Check / Go to Playlist</button>
-    </div>
+<body style="font-family: sans-serif; padding: 20px;">
 
-    <div id="status" class="status"></div>
-  </div>
+<h2>Music Playlist Redirect</h2>
+<p>Loading…</p>
 
-<script src="https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/crypto-js.min.js"></script>
 <script>
-(function () {
-  const statusEl = document.getElementById("status");
-  function setStatus(msg) {
-    if (statusEl) statusEl.textContent = msg;
-  }
+// Get ?key=XXXX from URL
+const params = new URLSearchParams(window.location.search);
+const key = params.get("key");
 
-  // 1. Get key from URL or from input
-  const params = new URLSearchParams(window.location.search);
-  const key = params.get("key");
+if (!key) {
+    document.body.innerHTML = "<h3>❌ No key provided.</h3>";
+    throw new Error("Missing key");
+}
 
-  if (!key) {
-    setStatus("Enter a key above, e.g. KOSChristmas2025");
-    return;
-  }
+// Compute SHA256 of key
+function hashKey(input) {
+    return "SHA256:" + CryptoJS.SHA256(input).toString();
+}
 
-  setStatus("Loading playlist index…");
+const keyhash = hashKey(key);
 
-  // Must match the password used by the GitHub Action
-  const MASTER_PASSWORD = "MusicPlaylistRedirect";
+// Load encrypted playlists.json
+fetch("playlists.json")
+    .then(r => r.json())
+    .then(data => {
+        const entry = data.find(e => e.keyhash === keyhash);
 
-  // Hash the key the same way encrypt.js does
-  const keyhash = "SHA256:" + CryptoJS.SHA256(key).toString();
-
-  // 2. Fetch playlists.json from the public repo
-  fetch("playlists.json?cache=" + Date.now())
-    .then(function (resp) {
-      if (!resp.ok) {
-        throw new Error("HTTP " + resp.status);
-      }
-      return resp.json();
-    })
-    .then(function (data) {
-      setStatus("Searching for matching playlist…");
-
-      let entry = null;
-
-      if (Array.isArray(data)) {
-        // Current format: [ { keyhash, salt, iv, ciphertext }, … ]
-        entry = data.find(function (p) { return p.keyhash === keyhash; });
-      } else if (data && typeof data === "object") {
-        // Fallback if it ever becomes a map: { keyhash: {…} }
-        entry = data[keyhash] || null;
-      }
-
-      if (!entry) {
-        setStatus("No playlist matched this key.");
-        console.warn("No match for keyhash:", keyhash);
-        return;
-      }
-
-      // 3. Decrypt the stored ciphertext
-      try {
-       
-  <script>
-    const MASTER_PASSWORD = "MusicPlaylistRedirect";
-    const PLAYLISTS_URL = "playlists.json";
-
-    const statusEl = document.getElementById("status");
-    const keyInput = document.getElementById("keyInput");
-    const checkBtn = document.getElementById("checkBtn");
-
-    function setStatus(msg, type = "info") {
-      statusEl.textContent = msg;
-      statusEl.classList.remove("ok", "err");
-      if (type === "ok") statusEl.classList.add("ok");
-      if (type === "err") statusEl.classList.add("err");
-    }
-
-    async function sha256Hex(text) {
-      const enc = new TextEncoder().encode(text);
-      const buf = await crypto.subtle.digest("SHA-256", enc);
-      return Array.from(new Uint8Array(buf))
-        .map(b => b.toString(16).padStart(2, "0"))
-        .join("");
-    }
-
-    async function decryptUrl(entry) {
-      const keyBytes = new TextEncoder().encode(MASTER_PASSWORD);
-      const keyHash = await crypto.subtle.digest("SHA-256", keyBytes);
-      const aesKey = await crypto.subtle.importKey(
-        "raw",
-        keyHash,
-        { name: "AES-GCM" },
-        false,
-        ["decrypt"]
-      );
-
-      const ivBytes = Uint8Array.from(atob(entry.iv), c => c.charCodeAt(0));
-      const cipherBuf = Uint8Array.from(atob(entry.ciphertext), c => c.charCodeAt(0));
-
-      const decrypted = await crypto.subtle.decrypt(
-        { name: "AES-GCM", iv: ivBytes },
-        aesKey,
-        cipherBuf
-      );
-
-      return new TextDecoder().decode(decrypted);
-    }
-
-    async function findAndGo(key) {
-      if (!key) {
-        setStatus("Please enter a key (e.g. KOSChristmas2025).", "err");
-        return;
-      }
-
-      try {
-        setStatus("Loading playlists.json…");
-        const res = await fetch(PLAYLISTS_URL, { cache: "no-cache" });
-        if (!res.ok) {
-          setStatus("Could not load playlists.json (" + res.status + ").", "err");
-          return;
-        }
-        const list = await res.json();
-        if (!Array.isArray(list)) {
-          setStatus("playlists.json is not an array.", "err");
-          return;
+        if (!entry) {
+            document.body.innerHTML = `<h3>❌ Playlist not found for key: ${key}</h3>`;
+            return;
         }
 
-        const hex = await sha256Hex(key);
-        const targetHash = "sha256:" + hex;
-
-        const match = list.find(e => e.keyhash === targetHash);
-        if (!match) {
-          setStatus("No playlist matched this key: " + key + "\\n(keyhash: " + targetHash + ")", "err");
-          return;
-        }
-
-        setStatus("Playlist found. Decrypting…");
-
-        let url;
         try {
-          url = await decryptUrl(match);
-        } catch (e) {
-          console.error(e);
-          setStatus("Error decrypting the playlist URL. Check master password / format.", "err");
-          return;
+            const salt = CryptoJS.enc.Base64.parse(entry.salt);
+            const iv = CryptoJS.enc.Base64.parse(entry.iv);
+
+            const decrypted = CryptoJS.AES.decrypt(entry.ciphertext, 
+                MASTER_PASSWORD = "MusicPlaylistRedirect", 
+                { iv, salt }
+            ).toString(CryptoJS.enc.Utf8);
+
+            if (!decrypted) {
+                document.body.innerHTML = "<h3>❌ Decryption failed.</h3>";
+                return;
+            }
+
+            // Success → Redirect to playlist URL
+            window.location.href = decrypted.trim();
+
+        } catch (err) {
+            document.body.innerHTML = `<h3>❌ Error: ${err.message}</h3>`;
         }
-
-        if (!url || !/^https?:\\/\\//i.test(url)) {
-          setStatus("Decrypted value does not look like a valid URL:\\n" + String(url), "err");
-          return;
-        }
-
-        setStatus("Redirecting to:\\n" + url, "ok");
-        setTimeout(() => {
-          window.location.href = url;
-        }, 600);
-
-      } catch (e) {
-        console.error(e);
-        setStatus("Unexpected error: " + e.message, "err");
-      }
-    }
-
-    checkBtn.addEventListener("click", () => {
-      const key = keyInput.value.trim();
-      findAndGo(key);
+    })
+    .catch(err => {
+        document.body.innerHTML = `<h3>❌ Failed to load playlist list.</h3>`;
+        console.error(err);
     });
+</script>
 
-    (function initFromURL() {
-      const params = new URLSearchParams(window.location.search);
-      const key = params.get("key");
-      if (key) {
-        keyInput.value = key;
-        findAndGo(key);
-      }
-    })();
-  </script>
 </body>
 </html>
