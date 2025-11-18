@@ -105,6 +105,61 @@
     <div id="status" class="status"></div>
   </div>
 
+<script src="https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/crypto-js.min.js"></script>
+<script>
+(function () {
+  const statusEl = document.getElementById("status");
+  function setStatus(msg) {
+    if (statusEl) statusEl.textContent = msg;
+  }
+
+  // 1. Get key from URL or from input
+  const params = new URLSearchParams(window.location.search);
+  const key = params.get("key");
+
+  if (!key) {
+    setStatus("Enter a key above, e.g. KOSChristmas2025");
+    return;
+  }
+
+  setStatus("Loading playlist index…");
+
+  // Must match the password used by the GitHub Action
+  const MASTER_PASSWORD = "MusicPlaylistRedirect";
+
+  // Hash the key the same way encrypt.js does
+  const keyhash = "SHA256:" + CryptoJS.SHA256(key).toString();
+
+  // 2. Fetch playlists.json from the public repo
+  fetch("playlists.json?cache=" + Date.now())
+    .then(function (resp) {
+      if (!resp.ok) {
+        throw new Error("HTTP " + resp.status);
+      }
+      return resp.json();
+    })
+    .then(function (data) {
+      setStatus("Searching for matching playlist…");
+
+      let entry = null;
+
+      if (Array.isArray(data)) {
+        // Current format: [ { keyhash, salt, iv, ciphertext }, … ]
+        entry = data.find(function (p) { return p.keyhash === keyhash; });
+      } else if (data && typeof data === "object") {
+        // Fallback if it ever becomes a map: { keyhash: {…} }
+        entry = data[keyhash] || null;
+      }
+
+      if (!entry) {
+        setStatus("No playlist matched this key.");
+        console.warn("No match for keyhash:", keyhash);
+        return;
+      }
+
+      // 3. Decrypt the stored ciphertext
+      try {
+       
   <script>
     const MASTER_PASSWORD = "MusicPlaylistRedirect";
     const PLAYLISTS_URL = "playlists.json";
