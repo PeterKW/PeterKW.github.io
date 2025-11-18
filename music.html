@@ -46,7 +46,6 @@
     }
   </style>
 </head>
-
 <body>
   <div class="card">
     <p class="status" id="status">Loading…</p>
@@ -61,108 +60,79 @@
   </div>
 
   <script>
-    const PBKDF2_ITERATIONS = 200000;
-    const PBKDF2_HASH       = "SHA-256";
-    const AES_KEY_LENGTH    = 256;
-    const IV_LENGTH_BYTES   = 12;
+    async function sha256(text) {
+      const enc = new TextEncoder().encode(text);
+      const digest = await crypto.subtle.digest("SHA-256", enc);
+      return Array.from(new Uint8Array(digest))
+        .map(b => b.toString(16).padStart(2,"0"))
+        .join("");
+    }
 
     function getParam(name) {
       return new URLSearchParams(window.location.search).get(name);
     }
 
     function base64ToBytes(b64) {
-      const bin = atob(b64);
-      const len = bin.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
-      return bytes;
+      return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
     }
 
-    async function deriveAesKeyFromPassword(password, saltB64) {
-      const enc = new TextEncoder();
-      const passBytes = enc.encode(password);
-      const saltBytes = base64ToBytes(saltB64);
+    async function decryptEntry(aesKey, entry) {
+      const iv = base64ToBytes(entry.iv);
+      const data = base64ToBytes(entry.ciphertext);
 
-      const baseKey = await crypto.subtle.importKey(
+      const cipher = await crypto.subtle.importKey(
         "raw",
-        passBytes,
-        { name: "PBKDF2" },
-        false,
-        ["deriveKey"]
-      );
-
-      return crypto.subtle.deriveKey(
-        {
-          name: "PBKDF2",
-          salt: saltBytes,
-          iterations: PBKDF2_ITERATIONS,
-          hash: PBKDF2_HASH
-        },
-        baseKey,
-        { name: "AES-GCM", length: AES_KEY_LENGTH },
+        aesKey,
+        "AES-GCM",
         false,
         ["decrypt"]
       );
-    }
 
-    async function tryDecryptEntry(password, entry) {
-      const ivBytes     = base64ToBytes(entry.iv);
-      const cipherBytes = base64ToBytes(entry.ciphertext);
-      const aesKey      = await deriveAesKeyFromPassword(password, entry.salt);
-
-      const plainBuf = await crypto.subtle.decrypt(
-        { name: "AES-GCM", iv: ivBytes },
-        aesKey,
-        cipherBytes
+      const plaintext = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv },
+        cipher,
+        data
       );
 
-      return new TextDecoder().decode(plainBuf);
+      return new TextDecoder().decode(plaintext);
     }
 
-    let entries = [];
-
-    async function loadPlaylistsJSON() {
-      const resp = await fetch("playlists.json", { cache: "no-store" });
-      entries = await resp.json();
-      if (!Array.isArray(entries)) throw new Error("playlists.json must be an array");
-    }
-
-    async function attemptUnlock(password) {
+    async function unlockWithKey(userKey) {
       const statusEl = document.getElementById("status");
-      statusEl.textContent = "Trying key…";
+
+      const hashedKey = "sha256:" + await sha256(userKey);
+
+      const resp = await fetch("playlists.json");
+      const entries = await resp.json();
+
+      const aesKey = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("MusicPlaylistRedirect"));
 
       for (const entry of entries) {
-        try {
-          const url = await tryDecryptEntry(password, entry);
-          if (url.startsWith("http")) {
+        if (entry.keyhash === hashedKey) {
+          try {
+            const url = await decryptEntry(aesKey, entry);
             statusEl.textContent = "Match found. Redirecting…";
             window.location.href = url;
             return;
-          }
-        } catch (e) {}
+          } catch (e) {}
+        }
       }
 
       statusEl.textContent = "No playlist matched this key.";
     }
 
     async function submitPassword() {
-      const pw = document.getElementById("pwInput").value.trim();
-      if (!pw) {
-        document.getElementById("status").textContent = "Enter a valid key.";
-        return;
-      }
-      await attemptUnlock(pw);
+      const key = document.getElementById("pwInput").value.trim();
+      if (key) unlockWithKey(key);
     }
 
     (async function init() {
       const statusEl = document.getElementById("status");
-      const urlKey = getParam("key");
 
-      await loadPlaylistsJSON();
-
-      if (urlKey) {
-        statusEl.textContent = "Key detected. Searching…";
-        await attemptUnlock(urlKey);
+      const key = getParam("key");
+      if (key) {
+        statusEl.textContent = "Trying key…";
+        await unlockWithKey(key);
       } else {
         statusEl.textContent = "Enter playlist key.";
         document.getElementById("pwBox").style.display = "block";
