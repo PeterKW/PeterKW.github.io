@@ -28,13 +28,12 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
-
   <script>
   (async () => {
 
-    const status = msg => document.getElementById("status").innerText = msg;
+    const status = msg =>
+      document.getElementById("status").innerText = msg;
 
-    // 1️⃣ Read key from URL
     const params = new URLSearchParams(window.location.search);
     const key = params.get("key");
 
@@ -45,57 +44,44 @@
 
     status("Loading playlists…");
 
-    // 2️⃣ Load the encrypted playlist list
     let playlists;
     try {
       const res = await fetch("playlists.json?cache=" + Date.now());
       playlists = await res.json();
-    } catch (e) {
-      console.error(e);
+    } catch {
       status("Failed to load playlists.json");
       return;
     }
 
-    // 3️⃣ Compute SHA256 of key
     const keyhash = "SHA256:" + CryptoJS.SHA256(key).toString();
-
-    // 4️⃣ Find matching entry
     const entry = playlists.find(p => p.keyhash === keyhash);
 
     if (!entry) {
-      status("Playlist not found: " + key);
+      status("Playlist not found");
       return;
     }
 
     status("Decrypting…");
 
-    // 🔑 5️⃣ Master password — MUST match GitHub secret
-    const MASTER_PASSWORD = "MusicPlaylistRedirect";
+    try {
+      const saltWA = CryptoJS.enc.Base64.parse(entry.salt);
+      const ivWA   = CryptoJS.enc.Base64.parse(entry.iv);
 
-    // 🔧 Helper: derive PBKDF2 key (must match encrypt.js)
-    function deriveKey(saltWordArray) {
-      return CryptoJS.PBKDF2(MASTER_PASSWORD, saltWordArray, {
+      const derivedKey = CryptoJS.PBKDF2(key, saltWA, {
         keySize: 256 / 32,
         iterations: 1000,
         hasher: CryptoJS.algo.SHA256
       });
-    }
-
-    try {
-      const saltWA = CryptoJS.enc.Base64.parse(entry.salt);
-      const ivWA   = CryptoJS.enc.Base64.parse(entry.iv);
-      const keyWA  = deriveKey(saltWA);
 
       const cipherParams = CryptoJS.lib.CipherParams.create({
         ciphertext: CryptoJS.enc.Base64.parse(entry.ciphertext)
       });
 
-      const out = CryptoJS.AES.decrypt(cipherParams, keyWA, { iv: ivWA });
+      const out = CryptoJS.AES.decrypt(cipherParams, derivedKey, { iv: ivWA });
       const decrypted = out.toString(CryptoJS.enc.Utf8);
 
       if (!decrypted || !decrypted.startsWith("http")) {
-        console.error("Decrypted:", decrypted);
-        status("Decryption failed.");
+        status("Decryption failed");
         return;
       }
 
@@ -104,11 +90,10 @@
 
     } catch (err) {
       console.error(err);
-      status("Decryption error.");
+      status("Decryption error");
     }
 
   })();
   </script>
-
 </body>
 </html>
